@@ -38,10 +38,15 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewData
         loadMessages()
     }
     
+    //MARK: To unhide navigationbar
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.isHidden = false
+    }
+    
     //MARK: FUNCTION TO LOAD PREVIOUS MESSAGES WHEN TABLEVIEW LOADS
     func loadMessages(){
         
-        db.collection("messages").addSnapshotListener { [self] querysnapshot, error in
+        db.collection("messages").order(by: "timeStamp").addSnapshotListener { [self] querysnapshot, error in
             
             self.messages = [] //To avoid repetition of messages
             
@@ -102,7 +107,7 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewData
         
         if let messageBody = chatTextField.text, let messageSender = Auth.auth().currentUser?.email{
             
-            db.collection("messages").addDocument(data: ["sender" : messageSender, "messageBody" : messageBody]){ error in
+            db.collection("messages").addDocument(data: ["sender" : messageSender, "messageBody" : messageBody, "timeStamp" : Date().timeIntervalSince1970]){ error in
                 
                 if let e = error{
                     print("Data saving failed: \(e)")
@@ -143,5 +148,5 @@ class ChatViewController: UIViewController, UITextFieldDelegate, UITableViewData
         }
         
     }
-   
+    
 }
